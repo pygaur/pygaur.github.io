@@ -1,1 +1,84 @@
-Hello
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Registration Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 40px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"] { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { background: #3ecf8e; color: white; border: none; padding: 10px 15px; cursor: pointer; font-size: 16px; border-radius: 4px; }
+        button:hover { background: #34b279; }
+        #result { margin-top: 20px; padding: 15px; background: #e6fcf5; border: 1px solid #3ecf8e; border-radius: 4px; display: none; }
+        .error { color: red; margin-top: 10px; }
+    </style>
+
+    <!-- 1. Include the Supabase CDN JS Library -->
+    <script src="https://jsdelivr.net"></script>
+</head>
+<body>
+
+    <h2>Event Registration</h2>
+    <form id="registrationForm">
+        <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" required placeholder="John Doe">
+        </div>
+        <button type="submit" id="submitBtn">Register Now</button>
+    </form>
+
+    <div id="result">
+        <h3>🎉 Registration Successful!</h3>
+        <p>Thank you, <span id="displayName"></span>.</p>
+        <p>Your unique Registration ID is: <strong id="regId"></strong></p>
+    </div>
+    <div id="errorMsg" class="error"></div>
+
+    <script>
+        // 2. Initialize your Supabase client
+        // REPLACE THESE STUB STRINGS WITH YOUR ACTUAL CREDENTIALS FROM SUPABASE
+        const SUPABASE_URL = "https://supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+        
+        const supabase = @supabase/supabase-js.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 3. Handle Form Submission
+        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            const resultDiv = document.getElementById('result');
+            
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+            errorMsg.innerText = "";
+            resultDiv.style.display = "none";
+
+            const nameInput = document.getElementById('fullName').value;
+
+            // 4. Insert data into your Supabase table
+            const { data, error } = await supabase
+                .from('registrations')
+                .insert([{ full_name: nameInput }])
+                .select(); // .select() is required to return the created record back to JavaScript
+
+            btn.disabled = false;
+            btn.innerText = "Register Now";
+
+            if (error) {
+                errorMsg.innerText = "Error: " + error.message;
+                console.error(error);
+            } else if (data && data.length > 0) {
+                // 5. Display the auto-generated database ID
+                document.getElementById('displayName').innerText = data[0].full_name;
+                document.getElementById('regId').innerText = data[0].id;
+                resultDiv.style.display = 'block';
+                document.getElementById('registrationForm').reset();
+            }
+        });
+    </script>
+</body>
+</html>
