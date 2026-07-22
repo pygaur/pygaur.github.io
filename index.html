@@ -3,82 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supabase Registration Form</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 400px; margin: 40px auto; padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"] { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { background: #3ecf8e; color: white; border: none; padding: 10px 15px; cursor: pointer; font-size: 16px; border-radius: 4px; }
-        button:hover { background: #34b279; }
-        #result { margin-top: 20px; padding: 15px; background: #e6fcf5; border: 1px solid #3ecf8e; border-radius: 4px; display: none; }
-        .error { color: red; margin-top: 10px; }
-    </style>
+    <title>FizzBuzzArt Registration</title>
 
-    <!-- 1. Include the Supabase CDN JS Library -->
-    <script src="https://jsdelivr.net"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 450px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            background: #3ECF8E;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #2fb67d;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #eafaf2;
+            border: 1px solid #3ECF8E;
+            display: none;
+        }
+
+        #errorMsg {
+            color: red;
+            margin-top: 15px;
+        }
+    </style>
 </head>
+
 <body>
 
-    <h2>Event Registration</h2>
-    <form id="registrationForm">
-        <div class="form-group">
-            <label for="fullName">Full Name</label>
-            <input type="text" id="fullName" required placeholder="John Doe">
-        </div>
-        <button type="submit" id="submitBtn">Register Now</button>
-    </form>
+<h2>FizzBuzzArt Registration</h2>
 
-    <div id="result">
-        <h3>🎉 Registration Successful!</h3>
-        <p>Thank you, <span id="displayName"></span>.</p>
-        <p>Your unique Registration ID is: <strong id="regId"></strong></p>
+<form id="registrationForm">
+
+    <div class="form-group">
+        <label>Name</label>
+        <input
+            type="text"
+            id="fullName"
+            required
+            placeholder="Enter your name">
     </div>
-    <div id="errorMsg" class="error"></div>
 
-    <script>
-        // 2. Initialize your Supabase client
-        // REPLACE THESE STUB STRINGS WITH YOUR ACTUAL CREDENTIALS FROM SUPABASE
-        const SUPABASE_URL = "https://supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzd2F1ZGNobnhsdHR6amZnZWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODY1OTYsImV4cCI6MjEwMDI2MjU5Nn0.ghLpA97sKdqCwcBSyL5pLY1QceLIGSc4ZSAjqu6GaSg";
-        
-        const supabase = @supabase/supabase-js.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <button id="submitBtn" type="submit">
+        Register
+    </button>
 
-        // 3. Handle Form Submission
-        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const btn = document.getElementById('submitBtn');
-            const errorMsg = document.getElementById('errorMsg');
-            const resultDiv = document.getElementById('result');
-            
-            btn.disabled = true;
-            btn.innerText = "Processing...";
-            errorMsg.innerText = "";
-            resultDiv.style.display = "none";
+</form>
 
-            const nameInput = document.getElementById('fullName').value;
+<div id="result">
+    <h3>🎉 Registration Successful!</h3>
 
-            // 4. Insert data into your Supabase table
-            const { data, error } = await supabase
-                .from('registrations')
-                .insert([{ full_name: nameInput }])
-                .select(); // .select() is required to return the created record back to JavaScript
+    <p>
+        Thank you,
+        <strong id="displayName"></strong>
+    </p>
 
-            btn.disabled = false;
-            btn.innerText = "Register Now";
+    <p>
+        Registration ID:
+        <strong id="regId"></strong>
+    </p>
+</div>
 
-            if (error) {
-                errorMsg.innerText = "Error: " + error.message;
-                console.error(error);
-            } else if (data && data.length > 0) {
-                // 5. Display the auto-generated database ID
-                document.getElementById('displayName').innerText = data[0].full_name;
-                document.getElementById('regId').innerText = data[0].id;
-                resultDiv.style.display = 'block';
-                document.getElementById('registrationForm').reset();
+<div id="errorMsg"></div>
+
+<script>
+
+const { createClient } = supabase;
+
+const SUPABASE_URL = "https://vswaudchnxlttzjfgeij.supabase.co";
+
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzd2F1ZGNobnhsdHR6amZnZWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODY1OTYsImV4cCI6MjEwMDI2MjU5Nn0.ghLpA97sKdqCwcBSyL5pLY1QceLIGSc4ZSAjqu6GaSg";
+
+const client = createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+
+document
+.getElementById("registrationForm")
+.addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    const button = document.getElementById("submitBtn");
+    const errorDiv = document.getElementById("errorMsg");
+    const result = document.getElementById("result");
+
+    button.disabled = true;
+    button.innerText = "Registering...";
+
+    errorDiv.innerText = "";
+    result.style.display = "none";
+
+    const name = document.getElementById("fullName").value;
+
+    const { data, error } = await client
+        .from("fizzbuzzart_subscriptions")
+        .insert([
+            {
+                name: name
             }
-        });
-    </script>
+        ])
+        .select();
+
+    button.disabled = false;
+    button.innerText = "Register";
+
+    if (error) {
+
+        console.error(error);
+
+        errorDiv.innerText = error.message;
+
+        return;
+
+    }
+
+    document.getElementById("displayName").innerText = data[0].name;
+
+    document.getElementById("regId").innerText = data[0].id;
+
+    result.style.display = "block";
+
+    document.getElementById("registrationForm").reset();
+
+});
+
+</script>
+
 </body>
 </html>
