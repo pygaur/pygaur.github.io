@@ -1,144 +1,222 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FizzBuzzArt Registration</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<title>FizzBuzzArt Workshops</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 450px;
-            margin: 50px auto;
-            padding: 20px;
-        }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        h2 {
-            text-align: center;
-        }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+<style>
 
-        input {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
+body{
+    font-family:Arial;
+    max-width:900px;
+    margin:auto;
+    padding:30px;
+    background:#fafafa;
+}
 
-        button {
-            width: 100%;
-            background: #3ECF8E;
-            color: white;
-            border: none;
-            padding: 12px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
 
-        button:hover {
-            background: #2fb67d;
-        }
+h1{
+    text-align:center;
+}
 
-        #result {
-            display: none;
-            margin-top: 20px;
-            padding: 15px;
-            background: #eafaf2;
-            border: 1px solid #3ECF8E;
-            border-radius: 5px;
-        }
 
-        #errorMsg {
-            color: red;
-            margin-top: 15px;
-        }
-    </style>
+.card{
+
+    background:white;
+    border-radius:15px;
+    overflow:hidden;
+    margin:20px 0;
+    box-shadow:0 5px 15px #ddd;
+    cursor:pointer;
+
+}
+
+
+.card img{
+
+    width:100%;
+    height:300px;
+    object-fit:cover;
+
+}
+
+
+.content{
+
+    padding:20px;
+
+}
+
+
+.title{
+
+    font-size:24px;
+    font-weight:bold;
+
+}
+
+
+.price{
+
+    color:#3ECF8E;
+    font-size:22px;
+    font-weight:bold;
+
+}
+
+
+</style>
+
+
 </head>
+
+
 <body>
 
-<h2>FizzBuzzArt Registration</h2>
 
-<form id="registrationForm">
-    <div class="form-group">
-        <label for="fullName">Name</label>
-        <input
-            type="text"
-            id="fullName"
-            placeholder="Enter your name"
-            required>
-    </div>
+<h1>
+🎨 Upcoming Workshops
+</h1>
 
-    <button id="submitBtn" type="submit">
-        Register
-    </button>
-</form>
 
-<div id="result">
-    <h3>🎉 Registration Successful!</h3>
-    <p>Thank you, <strong id="displayName"></strong>.</p>
-</div>
+<div id="workshops"></div>
 
-<div id="errorMsg"></div>
+
 
 <script>
-const { createClient } = supabase;
 
-const SUPABASE_URL = "https://vswaudchnxlttzjfgeij.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzd2F1ZGNobnhsdHR6amZnZWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODY1OTYsImV4cCI6MjEwMDI2MjU5Nn0.ghLpA97sKdqCwcBSyL5pLY1QceLIGSc4ZSAjqu6GaSg";
 
-const client = createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
+const {createClient}=supabase;
+
+
+const client=createClient(
+
+"https://vswaudchnxlttzjfgeij.supabase.co",
+
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzd2F1ZGNobnhsdHR6amZnZWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODY1OTYsImV4cCI6MjEwMDI2MjU5Nn0.ghLpA97sKdqCwcBSyL5pLY1QceLIGSc4ZSAjqu6GaSg"
+
 );
 
-document
-.getElementById("registrationForm")
-.addEventListener("submit", async function (e) {
 
-    e.preventDefault();
 
-    const button = document.getElementById("submitBtn");
-    const errorDiv = document.getElementById("errorMsg");
-    const resultDiv = document.getElementById("result");
+async function loadWorkshops(){
 
-    button.disabled = true;
-    button.innerText = "Registering...";
 
-    errorDiv.innerText = "";
-    resultDiv.style.display = "none";
+const {data,error}=await client
 
-    const name = document.getElementById("fullName").value;
+.from("fizzbuzzart_workshops")
 
-    const { error } = await client
-        .from("fizzbuzzart_subscriptions")
-        .insert([
-            {
-                name: name
-            }
-        ]);
+.select("*")
 
-    button.disabled = false;
-    button.innerText = "Register";
+.order("workshop_date",{ascending:true});
 
-    if (error) {
-        console.error(error);
-        errorDiv.innerText = error.message;
-        return;
-    }
 
-    document.getElementById("displayName").innerText = name;
-    resultDiv.style.display = "block";
 
-    document.getElementById("registrationForm").reset();
+if(error){
+
+console.log(error);
+return;
+
+}
+
+
+
+const container=document.getElementById("workshops");
+
+
+
+data.forEach(workshop=>{
+
+
+let card=document.createElement("div");
+
+
+card.className="card";
+
+
+
+card.innerHTML=`
+
+<img src="${workshop.image_url}">
+
+
+<div class="content">
+
+
+<div class="title">
+
+${workshop.title}
+
+</div>
+
+
+<p>
+
+📅 ${new Date(workshop.workshop_date)
+.toDateString()}
+
+</p>
+
+
+<p>
+
+⏰ ${workshop.start_time}
+-
+${workshop.end_time}
+
+</p>
+
+
+<p>
+
+📍 ${workshop.address}
+
+</p>
+
+
+<p class="price">
+
+₹${workshop.price}
+
+</p>
+
+
+</div>
+
+`;
+
+
+
+card.onclick=function(){
+
+window.location.href=
+"workshop.html?id="+workshop.id;
+
+};
+
+
+
+container.appendChild(card);
+
+
 
 });
+
+
+}
+
+
+
+loadWorkshops();
+
+
 </script>
 
+
 </body>
+
 </html>
