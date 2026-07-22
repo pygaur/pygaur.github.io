@@ -1,1 +1,372 @@
-HI
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Workshop Registration</title>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<style>
+
+
+body{
+
+font-family:Arial;
+max-width:600px;
+margin:auto;
+padding:30px;
+
+}
+
+
+
+img{
+
+width:100%;
+border-radius:15px;
+
+}
+
+
+
+input{
+
+width:100%;
+padding:12px;
+margin:8px 0;
+box-sizing:border-box;
+
+}
+
+
+
+button{
+
+width:100%;
+padding:14px;
+background:#3ECF8E;
+color:white;
+border:none;
+border-radius:8px;
+font-size:18px;
+cursor:pointer;
+
+}
+
+
+
+#form{
+
+display:none;
+
+}
+
+
+#success{
+
+display:none;
+background:#eafff3;
+padding:20px;
+margin-top:20px;
+border-radius:10px;
+
+}
+
+
+.id{
+
+font-size:30px;
+font-weight:bold;
+color:#3ECF8E;
+
+}
+
+
+</style>
+
+
+</head>
+
+
+
+<body>
+
+
+
+<div id="details"></div>
+
+
+<button onclick="showForm()">
+
+Register Now
+
+</button>
+
+
+
+<div id="form">
+
+
+<h2>
+Registration Form
+</h2>
+
+
+<input id="name"
+placeholder="Your Name">
+
+
+<input id="city"
+placeholder="City">
+
+
+<input id="mobile"
+placeholder="Mobile Number">
+
+
+
+<button onclick="register()">
+
+Submit Registration
+
+</button>
+
+
+</div>
+
+
+
+<div id="success">
+
+
+<h2>
+🎉 Registration Successful
+</h2>
+
+
+<p>
+Your Registration ID:
+</p>
+
+
+<div class="id" id="regId"></div>
+
+
+<p>
+Please save this ID.
+</p>
+
+
+</div>
+
+
+
+
+
+<script>
+
+
+
+const {createClient}=supabase;
+
+
+const client=createClient(
+
+"https://vswaudchnxlttzjfgeij.supabase.co",
+
+"YOUR_SUPABASE_ANON_KEY"
+
+);
+
+
+
+const workshopId =
+new URLSearchParams(
+window.location.search
+).get("id");
+
+
+
+async function loadWorkshop(){
+
+
+
+const {data,error}=await client
+
+.from("fizzbuzzart_workshops")
+
+.select("*")
+
+.eq("id",workshopId)
+
+.single();
+
+
+
+if(error){
+
+alert(error.message);
+return;
+
+}
+
+
+
+document.getElementById("details")
+.innerHTML=`
+
+<img src="${data.image_url}">
+
+
+<h1>
+
+${data.title}
+
+</h1>
+
+
+<p>
+
+${data.description}
+
+</p>
+
+
+<p>
+
+📅 ${new Date(data.workshop_date)
+.toDateString()}
+
+</p>
+
+
+<p>
+
+⏰ ${data.start_time}
+-
+${data.end_time}
+
+</p>
+
+
+<p>
+
+📍 ${data.address}
+
+</p>
+
+
+<p>
+
+💰 Ticket: ₹${data.price}
+
+</p>
+
+
+<p>
+
+🍱 Food Coupon: ₹${data.food_coupon_value}
+
+</p>
+
+
+<p>
+
+🪑 Seats: ${data.max_seats}
+
+</p>
+
+`;
+
+}
+
+
+
+loadWorkshop();
+
+
+
+
+function showForm(){
+
+document.getElementById("form")
+.style.display="block";
+
+}
+
+
+
+
+
+async function register(){
+
+
+const name =
+document.getElementById("name").value;
+
+
+const city =
+document.getElementById("city").value;
+
+
+const mobile =
+document.getElementById("mobile").value;
+
+
+
+const {data,error}=await client
+
+.from("fizzbuzzart_workshop_registrations")
+
+.insert([
+
+{
+
+workshop_id:workshopId,
+
+name:name,
+
+city:city,
+
+mobile:mobile
+
+}
+
+])
+
+.select("id")
+
+.single();
+
+
+
+if(error){
+
+alert(error.message);
+return;
+
+}
+
+
+
+document.getElementById("success")
+.style.display="block";
+
+
+document.getElementById("regId")
+.innerText=data.id;
+
+
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
