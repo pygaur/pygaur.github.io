@@ -46,12 +46,12 @@
         }
 
         #result {
+            display: none;
             margin-top: 20px;
             padding: 15px;
-            border-radius: 5px;
             background: #eafaf2;
             border: 1px solid #3ECF8E;
-            display: none;
+            border-radius: 5px;
         }
 
         #errorMsg {
@@ -60,50 +60,36 @@
         }
     </style>
 </head>
-
 <body>
 
 <h2>FizzBuzzArt Registration</h2>
 
 <form id="registrationForm">
-
     <div class="form-group">
-        <label>Name</label>
+        <label for="fullName">Name</label>
         <input
             type="text"
             id="fullName"
-            required
-            placeholder="Enter your name">
+            placeholder="Enter your name"
+            required>
     </div>
 
     <button id="submitBtn" type="submit">
         Register
     </button>
-
 </form>
 
 <div id="result">
     <h3>🎉 Registration Successful!</h3>
-
-    <p>
-        Thank you,
-        <strong id="displayName"></strong>
-    </p>
-
-    <p>
-        Registration ID:
-        <strong id="regId"></strong>
-    </p>
+    <p>Thank you, <strong id="displayName"></strong>.</p>
 </div>
 
 <div id="errorMsg"></div>
 
 <script>
-
 const { createClient } = supabase;
 
 const SUPABASE_URL = "https://vswaudchnxlttzjfgeij.supabase.co";
-
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzd2F1ZGNobnhsdHR6amZnZWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODY1OTYsImV4cCI6MjEwMDI2MjU5Nn0.ghLpA97sKdqCwcBSyL5pLY1QceLIGSc4ZSAjqu6GaSg";
 
 const client = createClient(
@@ -113,54 +99,45 @@ const client = createClient(
 
 document
 .getElementById("registrationForm")
-.addEventListener("submit", async function(e){
+.addEventListener("submit", async function (e) {
 
     e.preventDefault();
 
     const button = document.getElementById("submitBtn");
     const errorDiv = document.getElementById("errorMsg");
-    const result = document.getElementById("result");
+    const resultDiv = document.getElementById("result");
 
     button.disabled = true;
     button.innerText = "Registering...";
 
     errorDiv.innerText = "";
-    result.style.display = "none";
+    resultDiv.style.display = "none";
 
     const name = document.getElementById("fullName").value;
 
-    const { data, error } = await client
+    const { error } = await client
         .from("fizzbuzzart_subscriptions")
         .insert([
             {
                 name: name
             }
-        ])
-        .select();
+        ]);
 
     button.disabled = false;
     button.innerText = "Register";
 
     if (error) {
-
         console.error(error);
-
         errorDiv.innerText = error.message;
-
         return;
-
     }
 
-    document.getElementById("displayName").innerText = data[0].name;
-
-    document.getElementById("regId").innerText = data[0].id;
-
-    result.style.display = "block";
+    document.getElementById("displayName").innerText = name;
+    resultDiv.style.display = "block";
 
     document.getElementById("registrationForm").reset();
 
 });
-
 </script>
 
 </body>
