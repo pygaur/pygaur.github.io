@@ -3,93 +3,136 @@
 
 <head>
 
-<title>Workshop Registration</title>
-
+<title>Workshop Details</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-
 <style>
 
-
 body{
-
-font-family:Arial;
-max-width:600px;
-margin:auto;
-padding:30px;
-
+    font-family:Arial;
+    max-width:700px;
+    margin:auto;
+    padding:30px;
 }
-
 
 
 img{
-
-width:100%;
-border-radius:15px;
-
+    width:100%;
+    border-radius:15px;
 }
-
-
-
-input{
-
-width:100%;
-padding:12px;
-margin:8px 0;
-box-sizing:border-box;
-
-}
-
 
 
 button{
 
-width:100%;
-padding:14px;
-background:#3ECF8E;
-color:white;
-border:none;
-border-radius:8px;
-font-size:18px;
-cursor:pointer;
+    background:#3ECF8E;
+    color:white;
+    border:none;
+    padding:14px;
+    width:100%;
+    border-radius:8px;
+    font-size:18px;
+    cursor:pointer;
 
 }
 
 
+button:hover{
+    background:#2ca873;
+}
 
-#form{
 
-display:none;
+/* MODAL */
+
+.modal{
+
+    display:none;
+
+    position:fixed;
+
+    z-index:1000;
+
+    left:0;
+    top:0;
+
+    width:100%;
+    height:100%;
+
+    background:rgba(0,0,0,0.5);
+
+}
+
+
+.modal-content{
+
+    background:white;
+
+    width:90%;
+
+    max-width:450px;
+
+    margin:10% auto;
+
+    padding:25px;
+
+    border-radius:15px;
+
+}
+
+
+.close{
+
+    float:right;
+
+    font-size:25px;
+
+    cursor:pointer;
+
+}
+
+
+input{
+
+    width:100%;
+
+    padding:12px;
+
+    margin:8px 0;
+
+    box-sizing:border-box;
 
 }
 
 
 #success{
 
-display:none;
-background:#eafff3;
-padding:20px;
-margin-top:20px;
-border-radius:10px;
+    display:none;
+
+    background:#eafff3;
+
+    padding:20px;
+
+    border-radius:10px;
 
 }
 
 
-.id{
+.registration-id{
 
-font-size:30px;
-font-weight:bold;
-color:#3ECF8E;
+    font-size:32px;
+
+    font-weight:bold;
+
+    color:#3ECF8E;
 
 }
+
 
 
 </style>
 
 
 </head>
-
 
 
 <body>
@@ -99,7 +142,10 @@ color:#3ECF8E;
 <div id="details"></div>
 
 
-<button onclick="showForm()">
+<br>
+
+
+<button onclick="openModal()">
 
 Register Now
 
@@ -107,24 +153,44 @@ Register Now
 
 
 
-<div id="form">
+
+<!-- REGISTRATION MODAL -->
+
+
+<div id="registrationModal" class="modal">
+
+
+<div class="modal-content">
+
+
+<span class="close" onclick="closeModal()">
+
+×
+</span>
 
 
 <h2>
-Registration Form
+Workshop Registration
 </h2>
 
 
-<input id="name"
-placeholder="Your Name">
+
+<input 
+id="name"
+placeholder="Your Name"
+>
 
 
-<input id="city"
-placeholder="City">
+<input 
+id="city"
+placeholder="City"
+>
 
 
-<input id="mobile"
-placeholder="Mobile Number">
+<input 
+id="mobile"
+placeholder="Mobile Number"
+>
 
 
 
@@ -135,16 +201,13 @@ Submit Registration
 </button>
 
 
-</div>
-
-
 
 <div id="success">
 
 
-<h2>
+<h3>
 🎉 Registration Successful
-</h2>
+</h3>
 
 
 <p>
@@ -152,13 +215,14 @@ Your Registration ID:
 </p>
 
 
-<div class="id" id="regId"></div>
+<div class="registration-id" id="regId"></div>
 
 
-<p>
-Please save this ID.
-</p>
+</div>
 
+
+
+</div>
 
 </div>
 
@@ -166,8 +230,8 @@ Please save this ID.
 
 
 
-<script>
 
+<script>
 
 
 const {createClient}=supabase;
@@ -190,8 +254,11 @@ window.location.search
 
 
 
-async function loadWorkshop(){
+let workshop;
 
+
+
+async function loadWorkshop(){
 
 
 const {data,error}=await client
@@ -209,9 +276,14 @@ const {data,error}=await client
 if(error){
 
 alert(error.message);
+
 return;
 
 }
+
+
+
+workshop=data;
 
 
 
@@ -222,67 +294,51 @@ document.getElementById("details")
 
 
 <h1>
-
 ${data.title}
-
 </h1>
 
 
 <p>
-
 ${data.description}
-
 </p>
 
 
 <p>
-
 📅 ${new Date(data.workshop_date)
 .toDateString()}
-
 </p>
 
 
 <p>
-
 ⏰ ${data.start_time}
 -
 ${data.end_time}
-
 </p>
 
 
 <p>
-
 📍 ${data.address}
-
 </p>
 
 
 <p>
-
-💰 Ticket: ₹${data.price}
-
+💰 Ticket Price: ₹${data.price}
 </p>
 
 
 <p>
-
 🍱 Food Coupon: ₹${data.food_coupon_value}
-
 </p>
 
 
 <p>
-
 🪑 Seats: ${data.max_seats}
-
 </p>
+
 
 `;
 
 }
-
 
 
 loadWorkshop();
@@ -290,10 +346,20 @@ loadWorkshop();
 
 
 
-function showForm(){
 
-document.getElementById("form")
+function openModal(){
+
+document.getElementById("registrationModal")
 .style.display="block";
+
+}
+
+
+
+function closeModal(){
+
+document.getElementById("registrationModal")
+.style.display="none";
 
 }
 
@@ -317,6 +383,16 @@ document.getElementById("mobile").value;
 
 
 
+if(!name || !mobile){
+
+alert("Please enter name and mobile");
+
+return;
+
+}
+
+
+
 const {data,error}=await client
 
 .from("fizzbuzzart_workshop_registrations")
@@ -325,7 +401,7 @@ const {data,error}=await client
 
 {
 
-workshop_id:workshopId,
+workshop_id: workshopId,
 
 name:name,
 
@@ -346,6 +422,7 @@ mobile:mobile
 if(error){
 
 alert(error.message);
+
 return;
 
 }
@@ -362,6 +439,23 @@ document.getElementById("regId")
 
 
 }
+
+
+
+window.onclick=function(event){
+
+const modal =
+document.getElementById("registrationModal");
+
+
+if(event.target==modal){
+
+closeModal();
+
+}
+
+}
+
 
 
 </script>
