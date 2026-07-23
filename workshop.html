@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Workshop Details — FizzBuzzArt</title>
+  <title>Workshop Details — FizzBuzzCircle</title>
+  <link rel="stylesheet" href="site.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
   <style>
@@ -17,38 +18,27 @@
       --border: #e8e4df;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-      line-height: 1.6;
-    }
-
-    a {
-      color: var(--accent-dark);
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .page {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 24px;
+    .workshop-page {
+      padding: 40px 0 64px;
     }
 
     .back-link {
-      display: inline-block;
-      margin-bottom: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 24px;
       font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--accent-dark);
+    }
+
+    #details {
+      max-width: 720px;
     }
 
     #details img {
@@ -101,6 +91,7 @@
       border: none;
       padding: 16px;
       width: 100%;
+      max-width: 720px;
       border-radius: 12px;
       font-size: 1.05rem;
       font-weight: 700;
@@ -243,12 +234,28 @@
 
 <body>
 
-  <div class="page">
-    <a href="index.html" class="back-link">&larr; Back to all workshops</a>
-    <div id="details"></div>
-    <br>
-    <button id="registerBtn" class="register-btn" onclick="openModal()">Register Now</button>
-  </div>
+  <header class="site-header">
+    <div class="container site-nav">
+      <a href="index.html" class="logo">Fizz<span>Buzz</span>Circle</a>
+      <button class="menu-toggle" aria-label="Open menu" onclick="toggleMenu()">☰</button>
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html#about">About</a>
+        <a href="index.html#upcoming">Workshops</a>
+        <a href="index.html#artists">Artists</a>
+        <a href="index.html#contact">Contact</a>
+        <a href="index.html#upcoming" class="nav-cta">Book a Workshop</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container workshop-page">
+      <a href="index.html#upcoming" class="back-link">&larr; Back to all workshops</a>
+      <div id="details"></div>
+      <br>
+      <button id="registerBtn" class="register-btn" onclick="openModal()">Register Now</button>
+    </div>
+  </main>
 
   <!-- Registration Modal -->
   <div id="registrationModal" class="modal">
@@ -280,7 +287,7 @@
       </div>
 
       <div id="success">
-        <h3>🎉 Welcome to FizzBuzzArt!</h3>
+        <h3>🎉 Welcome to FizzBuzzCircle!</h3>
         <p class="welcome">
           Thank you for registering. We're excited to have you at the workshop.
           Please save your registration ID for check-in.
@@ -291,6 +298,63 @@
       </div>
     </div>
   </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">Fizz<span>Buzz</span>Circle</a>
+          <p>
+            We partner with artists to organize art workshops across India — handling venues,
+            attendees, and logistics so creators can do what they love.
+          </p>
+          <div class="footer-social">
+            <a href="https://instagram.com/fizzbuzzcircle" target="_blank" rel="noopener" title="Instagram">IG</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Explore</h4>
+          <ul>
+            <li><a href="index.html#about">About Us</a></li>
+            <li><a href="index.html#upcoming">Upcoming Workshops</a></li>
+            <li><a href="index.html#past">Past Workshops</a></li>
+            <li><a href="index.html#artists">Our Artists</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Art Forms</h4>
+          <ul>
+            <li><a href="index.html#upcoming">Resin Art</a></li>
+            <li><a href="index.html#upcoming">Sculpture</a></li>
+            <li><a href="index.html#upcoming">Texture Art</a></li>
+            <li><a href="index.html#upcoming">Crochet &amp; DIY</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Get in Touch</h4>
+          <ul>
+            <li><a href="https://instagram.com/fizzbuzzcircle" target="_blank" rel="noopener">Instagram</a></li>
+            <li><a href="mailto:hello@fizzbuzzcircle.com">hello@fizzbuzzcircle.com</a></li>
+            <li><a href="index.html#upcoming">Register for a Workshop</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 FizzBuzzCircle. All rights reserved.</span>
+        <span>
+          <a href="index.html#about">About</a>
+          &nbsp;&middot;&nbsp;
+          <a href="index.html#contact">Contact</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById("navLinks").classList.toggle("open");
+    }
+  </script>
 
   <script>
     const client = getSupabaseClient();

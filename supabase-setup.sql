@@ -12,8 +12,17 @@ CREATE TABLE IF NOT EXISTS fizzbuzzart_artists (
   specialty text NOT NULL,
   image_url text,
   bio text,
+  instagram_handle text,
+  facebook_page_url text,
+  mobile_no text,
   created_at timestamptz DEFAULT now()
 );
+
+-- Add social & contact fields if table already exists
+ALTER TABLE fizzbuzzart_artists
+  ADD COLUMN IF NOT EXISTS instagram_handle text,
+  ADD COLUMN IF NOT EXISTS facebook_page_url text,
+  ADD COLUMN IF NOT EXISTS mobile_no text;
 
 -- Allow public read on artists; adjust RLS policies as needed
 ALTER TABLE fizzbuzzart_artists ENABLE ROW LEVEL SECURITY;
