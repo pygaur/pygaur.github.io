@@ -105,6 +105,46 @@
       font-weight: 600;
     }
 
+    .info-item .artist-jump {
+      color: var(--purple-deep);
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.2s;
+    }
+
+    .info-item .artist-jump:hover {
+      color: var(--pink);
+      text-decoration: underline;
+    }
+
+    #workshop-artist {
+      scroll-margin-top: 88px;
+      max-width: 720px;
+      margin-bottom: 28px;
+    }
+
+    #workshop-artist .section-label {
+      display: inline-block;
+      background: var(--gradient-cta);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    #workshop-artist h2 {
+      margin: 0 0 16px;
+      font-size: 1.35rem;
+      font-family: var(--font-display);
+    }
+
     .artist-block {
       display: flex;
       align-items: center;
@@ -112,8 +152,8 @@
       background: rgba(255, 255, 255, 0.9);
       border: 2px solid rgba(155, 89, 182, 0.15);
       border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 28px;
+      padding: 20px;
+      margin-bottom: 0;
       max-width: 720px;
     }
 
@@ -475,6 +515,14 @@
       return new Date(dateStr).toLocaleDateString("en-IN", opts);
     }
 
+    function formatTimeRange(start, end) {
+      if (typeof formatWorkshopTimeRange === "function") {
+        return formatWorkshopTimeRange(start, end);
+      }
+      if (!start) return "";
+      return end ? `${start} – ${end}` : start;
+    }
+
     function normalizeInstagramPostUrl(url) {
       if (!url) return "";
       try {
@@ -559,22 +607,32 @@
       }
 
       const artist = data.artist;
-      const artistBlock = artist ? `
-        <div class="artist-block">
-          ${artist.image_url ? `<img src="${artist.image_url}" alt="${artist.name}">` : ""}
-          <div class="artist-block-info">
-            <h3>${artist.name}</h3>
-            ${artist.specialty ? `<div class="specialty">${artist.specialty}</div>` : ""}
-            ${artist.instagram_handle ? `<a href="https://instagram.com/${artist.instagram_handle.replace(/^@/, "")}" target="_blank" rel="noopener">@${artist.instagram_handle.replace(/^@/, "")}</a>` : ""}
+      const artistSection = artist ? `
+        <section id="workshop-artist">
+          <span class="section-label">Workshop Artist</span>
+          <h2>Meet the artist</h2>
+          <div class="artist-block">
+            ${artist.image_url ? `<img src="${artist.image_url}" alt="${artist.name}">` : ""}
+            <div class="artist-block-info">
+              <h3>${artist.name}</h3>
+              ${artist.specialty ? `<div class="specialty">${artist.specialty}</div>` : ""}
+              ${artist.bio ? `<p style="margin:8px 0 0;font-size:0.9rem;color:var(--muted);">${artist.bio}</p>` : ""}
+              ${artist.instagram_handle ? `<a href="https://instagram.com/${artist.instagram_handle.replace(/^@/, "")}" target="_blank" rel="noopener">@${artist.instagram_handle.replace(/^@/, "")}</a>` : ""}
+            </div>
           </div>
-        </div>
+        </section>
       ` : "";
+
+      const artistInfoItem = artist ? `
+          <div class="info-item">
+            <div class="label">Artist</div>
+            <a href="#workshop-artist" class="value artist-jump">🎨 ${artist.name}</a>
+          </div>` : "";
 
       document.getElementById("details").innerHTML = `
         ${renderWorkshopMedia(data)}
         <h1>${data.title}</h1>
         <p class="description">${data.description || ""}</p>
-        ${artistBlock}
         <div class="info-grid">
           <div class="info-item">
             <div class="label">Date</div>
@@ -582,8 +640,9 @@
           </div>
           <div class="info-item">
             <div class="label">Time</div>
-            <div class="value">⏰ ${data.start_time} – ${data.end_time}</div>
+            <div class="value">⏰ ${formatTimeRange(data.start_time, data.end_time)}</div>
           </div>
+          ${artistInfoItem}
           <div class="info-item">
             <div class="label">Venue</div>
             <div class="value">📍 ${data.address}</div>
@@ -603,6 +662,7 @@
             <div class="value">🪑 ${data.max_seats}</div>
           </div>` : ""}
         </div>
+        ${artistSection}
       `;
 
       if (data.instagram_post_url) {
