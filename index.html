@@ -1,227 +1,583 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FizzBuzzArt — Art Workshop Organizers</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <style>
+    :root {
+      --accent: #3ECF8E;
+      --accent-dark: #2ca873;
+      --ink: #1a1a2e;
+      --muted: #6b7280;
+      --bg: #faf8f5;
+      --card: #ffffff;
+      --border: #e8e4df;
+      --shadow: 0 8px 30px rgba(26, 26, 46, 0.08);
+    }
 
-<title>FizzBuzzArt Workshops</title>
+    * {
+      box-sizing: border-box;
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    html {
+      scroll-behavior: smooth;
+    }
 
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }
 
-<style>
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-body{
-    font-family:Arial;
-    max-width:900px;
-    margin:auto;
-    padding:30px;
-    background:#fafafa;
-}
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(250, 248, 245, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
 
+    .nav {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
 
-h1{
-    text-align:center;
-}
+    .logo {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
 
+    .logo span {
+      color: var(--accent-dark);
+    }
 
-.card {
+    nav {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
 
-    background:white;
-    border-radius:15px;
-    overflow:hidden;
-    margin:20px 0;
-    box-shadow:0 5px 15px rgba(0,0,0,0.12);
-    cursor:pointer;
+    nav a {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
 
-}
+    nav a:hover {
+      color: var(--ink);
+    }
 
+    /* Hero */
+    .hero {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 64px 24px 48px;
+      text-align: center;
+    }
 
+    .hero-badge {
+      display: inline-block;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
 
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: 1.15;
+      margin: 0 0 20px;
+      letter-spacing: -0.03em;
+    }
 
-.card img {
+    .hero p {
+      max-width: 620px;
+      margin: 0 auto 28px;
+      font-size: 1.1rem;
+      color: var(--muted);
+    }
 
-    width:100%;
-    height:260px;
-    object-fit:cover;
-    object-position:center;
-    display:block;
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
 
-}
+    .tag {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
 
+    /* Sections */
+    section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
 
+    .section-header {
+      margin-bottom: 28px;
+    }
 
+    .section-header h2 {
+      margin: 0 0 8px;
+      font-size: 1.75rem;
+      letter-spacing: -0.02em;
+    }
 
-.content{
+    .section-header p {
+      margin: 0;
+      color: var(--muted);
+    }
 
-    padding:20px;
+    /* Scrollable workshop listings */
+    .scroll-row {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent;
+    }
 
-}
+    .scroll-row::-webkit-scrollbar {
+      height: 6px;
+    }
 
+    .scroll-row::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 999px;
+    }
 
-.title{
+    .card {
+      flex: 0 0 300px;
+      scroll-snap-align: start;
+      background: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid var(--border);
+    }
 
-    font-size:24px;
-    font-weight:bold;
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 40px rgba(26, 26, 46, 0.12);
+    }
 
-}
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+    }
 
+    .card .content {
+      padding: 18px;
+    }
 
-.price{
+    .card .title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
 
-    color:#3ECF8E;
-    font-size:22px;
-    font-weight:bold;
+    .card .meta {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin: 4px 0;
+    }
 
-}
+    .card .price {
+      color: var(--accent-dark);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-top: 10px;
+    }
 
+    .card.past {
+      opacity: 0.85;
+    }
 
-</style>
+    .card.past .badge {
+      display: inline-block;
+      background: #f3f4f6;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
 
+    .empty-state {
+      background: var(--card);
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--muted);
+    }
 
+    /* Artist gallery */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .artist-card {
+      background: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      text-align: center;
+      transition: transform 0.2s;
+    }
+
+    .artist-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .artist-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .artist-card .artist-info {
+      padding: 16px;
+    }
+
+    .artist-card h3 {
+      margin: 0 0 4px;
+      font-size: 1.05rem;
+    }
+
+    .artist-card .specialty {
+      color: var(--accent-dark);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .artist-card p {
+      margin: 8px 0 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* Follow section */
+    .follow-section {
+      background: linear-gradient(135deg, #1a1a2e 0%, #2d2d4a 100%);
+      color: #fff;
+      border-radius: 24px;
+      padding: 48px 32px;
+      text-align: center;
+      margin: 0 24px 48px;
+      max-width: calc(1100px - 48px);
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .follow-section h2 {
+      margin: 0 0 12px;
+      font-size: 1.75rem;
+    }
+
+    .follow-section p {
+      margin: 0 0 24px;
+      opacity: 0.85;
+    }
+
+    .follow-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.05rem;
+      padding: 14px 28px;
+      border-radius: 999px;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .follow-btn:hover {
+      background: var(--accent-dark);
+      transform: scale(1.03);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 32px 24px 48px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+    }
+
+    footer strong {
+      color: var(--ink);
+    }
+
+    @media (max-width: 640px) {
+      nav {
+        display: none;
+      }
+
+      .card {
+        flex: 0 0 260px;
+      }
+    }
+  </style>
 </head>
-
 
 <body>
 
-
-<h1>
-🎨 Upcoming Workshops
-</h1>
-
-
-<div id="workshops"></div>
-
-
-
-<script>
-
-
-const {createClient}=supabase;
-
-
-const client=createClient(
-
-"https://vswaudchnxlttzjfgeij.supabase.co",
-
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzd2F1ZGNobnhsdHR6amZnZWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODY1OTYsImV4cCI6MjEwMDI2MjU5Nn0.ghLpA97sKdqCwcBSyL5pLY1QceLIGSc4ZSAjqu6GaSg"
-
-);
-
-
-
-async function loadWorkshops(){
-
-
-const {data,error}=await client
-
-.from("fizzbuzzart_workshops")
-
-.select("*")
-
-.order("workshop_date",{ascending:true});
-
-
-
-if(error){
-
-console.log(error);
-return;
-
-}
-
-
-
-const container=document.getElementById("workshops");
-
-
-
-data.forEach(workshop=>{
-
-
-let card=document.createElement("div");
-
-
-card.className="card";
-
-
-
-card.innerHTML=`
-
-<img src="${workshop.image_url}">
-
-
-<div class="content">
-
-
-<div class="title">
-
-${workshop.title}
-
-</div>
-
-
-<p>
-
-📅 ${new Date(workshop.workshop_date)
-.toDateString()}
-
-</p>
-
-
-<p>
-
-⏰ ${workshop.start_time}
--
-${workshop.end_time}
-
-</p>
-
-
-<p>
-
-📍 ${workshop.address}
-
-</p>
-
-
-<p class="price">
-
-₹${workshop.price}
-
-</p>
-
-
-</div>
-
-`;
-
-
-
-card.onclick=function(){
-
-window.location.href=
-"workshop.html?id="+workshop.id;
-
-};
-
-
-
-container.appendChild(card);
-
-
-
-});
-
-
-}
-
-
-
-loadWorkshops();
-
-
-</script>
-
+  <header>
+    <div class="nav">
+      <a href="#" class="logo">Fizz<span>Buzz</span>Art</a>
+      <nav>
+        <a href="#upcoming">Upcoming</a>
+        <a href="#past">Past Workshops</a>
+        <a href="#artists">Artists</a>
+        <a href="#follow">Follow Us</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-badge">Making artists' lives easier</div>
+    <h1>We help artists organize unforgettable art workshops</h1>
+    <p>
+      From finding the perfect venue to filling every seat — we handle the logistics
+      so creators can focus on what they do best: making art.
+    </p>
+    <div class="tags">
+      <span class="tag">Resin</span>
+      <span class="tag">Sculpture</span>
+      <span class="tag">Texture Art</span>
+      <span class="tag">Crochet</span>
+      <span class="tag">DIY &amp; More</span>
+    </div>
+  </section>
+
+  <section id="upcoming">
+    <div class="section-header">
+      <h2>Upcoming Workshops</h2>
+      <p>Scroll through our future workshops and tap any card for details &amp; registration</p>
+    </div>
+    <div id="upcoming-workshops" class="scroll-row"></div>
+  </section>
+
+  <section id="past">
+    <div class="section-header">
+      <h2>Past Workshops</h2>
+      <p>A look at the creative sessions we've already brought to life</p>
+    </div>
+    <div id="past-workshops" class="scroll-row"></div>
+  </section>
+
+  <section id="artists">
+    <div class="section-header">
+      <h2>Our Artists</h2>
+      <p>Meet the talented creators we partner with</p>
+    </div>
+    <div id="artist-gallery" class="gallery-grid"></div>
+  </section>
+
+  <div id="follow" class="follow-section">
+    <h2>Follow FizzBuzzArt</h2>
+    <p>Stay updated on new workshops, artist spotlights, and behind-the-scenes moments</p>
+    <a href="https://instagram.com/fizzbuzzart" target="_blank" rel="noopener" class="follow-btn">
+      @fizzbuzzart on Instagram
+    </a>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 <strong>FizzBuzzArt</strong> — Workshop setup &middot; Venues &middot; Attendees</p>
+  </footer>
+
+  <script>
+    const client = getSupabaseClient();
+
+    const FALLBACK_ARTISTS = [
+      {
+        name: "Priya Sharma",
+        specialty: "Resin Art",
+        image_url: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&h=300&fit=crop",
+        bio: "Creates stunning resin coasters, trays & wall pieces"
+      },
+      {
+        name: "Arjun Mehta",
+        specialty: "Sculpture",
+        image_url: "https://images.unsplash.com/photo-1452860606245-08befc0ff780?w=400&h=300&fit=crop",
+        bio: "Clay & wire sculpture workshops for all skill levels"
+      },
+      {
+        name: "Neha Kapoor",
+        specialty: "Texture Art",
+        image_url: "https://images.unsplash.com/photo-1460661419345-085b692f5a63?w=400&h=300&fit=crop",
+        bio: "Mixed-media texture canvases with bold colors"
+      },
+      {
+        name: "Riya Patel",
+        specialty: "Crochet",
+        image_url: "https://images.unsplash.com/photo-1583743814966-6a8c04a0a088?w=400&h=300&fit=crop",
+        bio: "Amigurumi, bags & home décor crochet sessions"
+      },
+      {
+        name: "Dev Singh",
+        specialty: "DIY & Crafts",
+        image_url: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=300&fit=crop",
+        bio: "Upcycling, macramé & creative DIY projects"
+      }
+    ];
+
+    function isPast(dateStr) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const workshopDate = new Date(dateStr + "T00:00:00");
+      return workshopDate < today;
+    }
+
+    function formatDate(dateStr) {
+      return new Date(dateStr + "T00:00:00").toLocaleDateString("en-IN", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      });
+    }
+
+    function buildWorkshopCard(workshop, isPastWorkshop) {
+      const card = document.createElement("div");
+      card.className = "card" + (isPastWorkshop ? " past" : "");
+
+      card.innerHTML = `
+        <img src="${workshop.image_url || "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&h=260&fit=crop"}" alt="${workshop.title}">
+        <div class="content">
+          ${isPastWorkshop ? '<span class="badge">Completed</span>' : ""}
+          <div class="title">${workshop.title}</div>
+          <div class="meta">📅 ${formatDate(workshop.workshop_date)}</div>
+          <div class="meta">⏰ ${workshop.start_time} – ${workshop.end_time}</div>
+          <div class="meta">📍 ${workshop.address}</div>
+          <div class="price">₹${workshop.price}</div>
+        </div>
+      `;
+
+      card.onclick = () => {
+        window.location.href = "workshop.html?id=" + workshop.id;
+      };
+
+      return card;
+    }
+
+    function showEmpty(container, message) {
+      container.innerHTML = `<div class="empty-state">${message}</div>`;
+      container.style.display = "block";
+    }
+
+    async function loadWorkshops() {
+      const { data, error } = await client
+        .from("fizzbuzzart_workshops")
+        .select("*")
+        .order("workshop_date", { ascending: true });
+
+      if (error) {
+        console.error(error);
+        showEmpty(document.getElementById("upcoming-workshops"), "Unable to load workshops. Please try again later.");
+        showEmpty(document.getElementById("past-workshops"), "");
+        return;
+      }
+
+      const upcomingContainer = document.getElementById("upcoming-workshops");
+      const pastContainer = document.getElementById("past-workshops");
+
+      const upcoming = data.filter(w => !isPast(w.workshop_date));
+      const past = data.filter(w => isPast(w.workshop_date)).reverse();
+
+      upcomingContainer.innerHTML = "";
+      pastContainer.innerHTML = "";
+
+      if (upcoming.length === 0) {
+        showEmpty(upcomingContainer, "No upcoming workshops right now. Follow us for announcements!");
+      } else {
+        upcoming.forEach(w => upcomingContainer.appendChild(buildWorkshopCard(w, false)));
+      }
+
+      if (past.length === 0) {
+        showEmpty(pastContainer, "Past workshops will appear here after they're completed.");
+      } else {
+        past.forEach(w => pastContainer.appendChild(buildWorkshopCard(w, true)));
+      }
+    }
+
+    function buildArtistCard(artist) {
+      const card = document.createElement("div");
+      card.className = "artist-card";
+      card.innerHTML = `
+        <img src="${artist.image_url}" alt="${artist.name}">
+        <div class="artist-info">
+          <h3>${artist.name}</h3>
+          <div class="specialty">${artist.specialty}</div>
+          ${artist.bio ? `<p>${artist.bio}</p>` : ""}
+        </div>
+      `;
+      return card;
+    }
+
+    async function loadArtists() {
+      const container = document.getElementById("artist-gallery");
+
+      const { data, error } = await client
+        .from("fizzbuzzart_artists")
+        .select("*")
+        .order("name", { ascending: true });
+
+      const artists = (!error && data && data.length > 0) ? data : FALLBACK_ARTISTS;
+
+      container.innerHTML = "";
+      artists.forEach(a => container.appendChild(buildArtistCard(a)));
+    }
+
+    loadWorkshops();
+    loadArtists();
+  </script>
 
 </body>
 
