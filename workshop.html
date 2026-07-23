@@ -4,10 +4,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Workshop Details — FizzBuzzCircle</title>
+  <meta name="description" content="Art workshop details — date, venue, artist &amp; online registration with FizzBuzzCircle.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="event">
+  <meta property="og:site_name" content="FizzBuzzCircle">
+  <meta property="og:locale" content="en_IN">
+  <meta property="og:title" content="Art Workshop — FizzBuzzCircle">
+  <meta property="og:description" content="View workshop details and register online.">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>Art Workshop — FizzBuzzCircle</title>
   <link rel="stylesheet" href="site.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js?v=2"></script>
+  <script src="seo.js?v=1"></script>
   <style>
     .workshop-page {
       padding: 40px 0 64px;
@@ -378,12 +387,12 @@
   </header>
 
   <main>
-    <div class="container workshop-page">
+    <article class="container workshop-page">
       <a href="index.html#upcoming" class="back-link">&larr; Back to all workshops</a>
       <div id="details"></div>
       <br>
       <button id="registerBtn" class="register-btn" onclick="openModal()">Register Now</button>
-    </div>
+    </article>
   </main>
 
   <!-- Registration Modal -->
@@ -667,6 +676,25 @@
 
       if (data.instagram_post_url) {
         processInstagramEmbed();
+      }
+
+      if (typeof setPageMeta === "function") {
+        const pageUrl = workshopPageUrl(data.id);
+        const desc = [
+          data.description,
+          data.address ? "Venue: " + data.address : "",
+          data.price ? "Tickets from ₹" + data.price : ""
+        ].filter(Boolean).join(" · ").slice(0, 160);
+
+        setPageMeta({
+          title: data.title + " — Art Workshop | FizzBuzzCircle",
+          description: desc || (data.title + " — Register for this art workshop with FizzBuzzCircle."),
+          url: pageUrl,
+          image: data.image_url || undefined,
+          type: "website"
+        });
+
+        injectJsonLd("jsonld-workshop-event", buildEventJsonLd(data));
       }
     }
 

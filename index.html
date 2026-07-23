@@ -4,11 +4,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="FizzBuzzCircle helps artists organize art workshops — we handle venues, promotion, and registrations for Resin, Sculpture, Texture Art, Crochet, DIY and more.">
-  <title>FizzBuzzCircle — Art Workshop Organizers</title>
+  <meta name="description" content="Find and register for art workshops in Delhi NCR, Noida, Mussoorie, Lucknow, Kanpur &amp; Indore. Join resin art, sculpture painting, texture art, crochet &amp; DIY creative sessions across India.">
+  <meta name="keywords" content="art workshops, creative workshops India, resin art workshop, sculpture painting, texture art, crochet workshop, DIY workshop, Delhi NCR, Noida, Lucknow, Kanpur, Indore, Mussoorie">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="FizzBuzzCircle">
+  <meta property="og:locale" content="en_IN">
+  <meta property="og:title" content="Art Workshops in India — FizzBuzzCircle">
+  <meta property="og:description" content="Discover upcoming art workshops. Register online for resin, sculpture, texture art, crochet &amp; DIY sessions in Delhi NCR, Noida &amp; more cities.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Art Workshops in India — FizzBuzzCircle">
+  <meta name="twitter:description" content="Discover upcoming art workshops and register online across India.">
+  <title>Art Workshops in India — Resin, Sculpture, Crochet &amp; More | FizzBuzzCircle</title>
+  <link rel="canonical" href="https://pygaur.github.io/">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "FizzBuzzCircle",
+    "url": "https://pygaur.github.io/",
+    "description": "Art workshop organizers helping artists run workshops and helping people discover creative sessions across India.",
+    "areaServed": ["Delhi NCR", "Noida", "Mussoorie", "Lucknow", "Kanpur", "Indore"],
+    "sameAs": ["https://instagram.com/fizzbuzzcircle"]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "FizzBuzzCircle",
+    "url": "https://pygaur.github.io/",
+    "description": "Find and register for art workshops in India"
+  }
+  </script>
   <link rel="stylesheet" href="site.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js?v=2"></script>
+  <script src="seo.js?v=1"></script>
   <style>
     /* Hero */
     .hero {
@@ -240,6 +272,9 @@
       cursor: pointer;
       transition: transform 0.25s, box-shadow 0.25s;
       border: 2px solid rgba(155, 89, 182, 0.12);
+      text-decoration: none;
+      color: inherit;
+      display: block;
     }
 
     .card:hover {
@@ -535,10 +570,10 @@
     <section class="hero">
       <div class="container">
         <div class="hero-badge">Workshop organizers for artists across India</div>
-        <h1>We make it easy for artists to run <em>unforgettable</em> workshops</h1>
+        <h1>Discover Art Workshops Across India</h1>
         <p class="lead">
-          FizzBuzzCircle handles venues, promotion, and registrations — so creators can focus on teaching
-          Resin, Sculpture, Texture Art, Crochet, DIY &amp; more.
+          FizzBuzzCircle organizes creative workshops in Delhi NCR, Noida, Mussoorie, Lucknow, Kanpur &amp; Indore —
+          Resin, Sculpture, Texture Art, Crochet, DIY &amp; more. Browse sessions and register online.
         </p>
         <div class="hero-actions">
           <a href="#upcoming" class="btn btn-primary">Explore Upcoming Workshops</a>
@@ -652,8 +687,8 @@
       <div class="container">
         <div class="section-header">
           <span class="section-label">Upcoming</span>
-          <h2>Workshops you can join now</h2>
-          <p>Tap any card to view full details and register for your spot.</p>
+          <h2>Upcoming Art Workshops</h2>
+          <p>Browse creative workshops near you — tap any card for details, venue, artist &amp; online registration.</p>
         </div>
         <div id="upcoming-workshops" class="scroll-row"></div>
       </div>
@@ -663,8 +698,8 @@
       <div class="container">
         <div class="section-header">
           <span class="section-label">Past Events</span>
-          <h2>Workshops we've already hosted</h2>
-          <p>A glimpse of the creative communities we've helped bring together.</p>
+          <h2>Past Art Workshops</h2>
+          <p>Creative sessions we have hosted — resin, sculpture, texture art &amp; more.</p>
         </div>
         <div id="past-workshops" class="scroll-row"></div>
       </div>
@@ -837,8 +872,10 @@
     }
 
     function buildWorkshopCard(workshop, isPastWorkshop) {
-      const card = document.createElement("div");
+      const card = document.createElement("a");
       card.className = "card" + (isPastWorkshop ? " past" : "");
+      card.href = "workshop.html?id=" + workshop.id;
+      card.setAttribute("aria-label", workshop.title + " — view workshop details");
       const artist = workshop.artist;
       const artistLine = artist
         ? `<div class="artist-meta">🎨 ${artist.name}${artist.specialty ? " · " + artist.specialty : ""}</div>`
@@ -859,10 +896,6 @@
           <div class="price">₹${workshop.price}</div>
         </div>
       `;
-
-      card.onclick = () => {
-        window.location.href = "workshop.html?id=" + workshop.id;
-      };
 
       return card;
     }
@@ -906,6 +939,9 @@
         showEmpty(upcomingContainer, "No upcoming workshops right now. Follow us on Instagram for announcements!");
       } else {
         upcoming.forEach(w => upcomingContainer.appendChild(buildWorkshopCard(w, false)));
+        if (typeof injectJsonLd === "function") {
+          injectJsonLd("jsonld-workshop-list", buildWorkshopListJsonLd(upcoming));
+        }
       }
 
       if (past.length === 0) {
@@ -941,6 +977,14 @@
 
     loadWorkshops();
     loadArtists();
+
+    if (typeof setPageMeta === "function") {
+      setPageMeta({
+        title: "Art Workshops in India — Resin, Sculpture, Crochet & More | FizzBuzzCircle",
+        description: "Find and register for art workshops in Delhi NCR, Noida, Mussoorie, Lucknow, Kanpur & Indore. Resin art, sculpture painting, texture art, crochet & DIY sessions.",
+        url: getSiteOrigin() + "/"
+      });
+    }
   </script>
 
 </body>
