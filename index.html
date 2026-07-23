@@ -8,7 +8,7 @@
   <title>FizzBuzzCircle — Art Workshop Organizers</title>
   <link rel="stylesheet" href="site.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
+  <script src="config.js?v=2"></script>
   <style>
     /* Hero */
     .hero {
@@ -777,16 +777,25 @@
     }
 
     function isPast(dateStr) {
-      return isWorkshopPast(dateStr);
+      if (typeof isWorkshopPast === "function") return isWorkshopPast(dateStr);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const d = new Date(dateStr);
+      d.setHours(0, 0, 0, 0);
+      return d < today;
     }
 
     function formatDate(dateStr) {
-      return formatWorkshopDate(dateStr, {
+      const opts = {
         weekday: "short",
         day: "numeric",
         month: "short",
         year: "numeric"
-      });
+      };
+      if (typeof formatWorkshopDate === "function") {
+        return formatWorkshopDate(dateStr, opts);
+      }
+      return new Date(dateStr).toLocaleDateString("en-IN", opts);
     }
 
     function buildWorkshopCard(workshop, isPastWorkshop) {

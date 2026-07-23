@@ -22,3 +22,8 @@ function isWorkshopPast(dateStr) {
 function formatWorkshopDate(dateStr, options) {
   return new Date(dateStr).toLocaleDateString("en-IN", options);
 }
+
+window.getSupabaseClient = getSupabaseClient;
+window.parseWorkshopDate = parseWorkshopDate;
+window.isWorkshopPast = isWorkshopPast;
+window.formatWorkshopDate = formatWorkshopDate;

@@ -7,7 +7,7 @@
   <title>Workshop Details — FizzBuzzCircle</title>
   <link rel="stylesheet" href="site.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
+  <script src="config.js?v=2"></script>
   <style>
     .workshop-page {
       padding: 40px 0 64px;
@@ -436,13 +436,26 @@
     const workshopId = new URLSearchParams(window.location.search).get("id");
     let workshop = null;
 
+    function isPastWorkshop(dateStr) {
+      if (typeof isWorkshopPast === "function") return isWorkshopPast(dateStr);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const d = new Date(dateStr);
+      d.setHours(0, 0, 0, 0);
+      return d < today;
+    }
+
     function formatDate(dateStr) {
-      return formatWorkshopDate(dateStr, {
+      const opts = {
         weekday: "long",
         day: "numeric",
         month: "long",
         year: "numeric"
-      });
+      };
+      if (typeof formatWorkshopDate === "function") {
+        return formatWorkshopDate(dateStr, opts);
+      }
+      return new Date(dateStr).toLocaleDateString("en-IN", opts);
     }
 
     async function loadWorkshop() {
@@ -476,7 +489,7 @@
 
       workshop = data;
 
-      const isPast = isWorkshopPast(data.workshop_date);
+      const isPast = isPastWorkshop(data.workshop_date);
 
       if (isPast) {
         document.getElementById("registerBtn").textContent = "Registration Closed";
