@@ -88,6 +88,48 @@
       font-weight: 600;
     }
 
+    .artist-block {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid rgba(155, 89, 182, 0.15);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 28px;
+      max-width: 720px;
+    }
+
+    .artist-block img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--purple-soft);
+      margin: 0;
+      box-shadow: none;
+    }
+
+    .artist-block-info h3 {
+      margin: 0 0 4px;
+      font-size: 1.05rem;
+      font-family: var(--font-display);
+    }
+
+    .artist-block-info .specialty {
+      color: var(--purple-deep);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .artist-block-info a {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 0.85rem;
+      color: var(--purple-deep);
+      font-weight: 600;
+    }
+
     .register-btn {
       background: var(--gradient-cta);
       color: #fff;
@@ -165,6 +207,13 @@
       font-weight: 600;
       margin-bottom: 6px;
       color: var(--purple-deep);
+    }
+
+    .field-hint {
+      margin: -10px 0 16px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.4;
     }
 
     input,
@@ -293,18 +342,9 @@
         <label for="city">City</label>
         <input id="city" placeholder="Your city" required>
 
-        <label for="payment_mode">Payment Mode</label>
-        <select id="payment_mode" required>
-          <option value="">Select payment mode</option>
-          <option value="UPI">UPI</option>
-          <option value="Cash">Cash</option>
-          <option value="Card">Card</option>
-          <option value="Bank Transfer">Bank Transfer</option>
-          <option value="Other">Other</option>
-        </select>
-
-        <label for="amount_paid">Amount Paid (₹)</label>
-        <input id="amount_paid" type="number" min="0" step="1" placeholder="Enter amount paid" required>
+        <label for="contact_details">How can we reach you?</label>
+        <input id="contact_details" placeholder="e.g. @yourusername or 9876543210" required>
+        <p class="field-hint">Instagram / social handle or mobile number — at least one way to contact you</p>
 
         <button id="submitBtn" class="submit-btn" onclick="register()">Submit Registration</button>
       </div>
@@ -397,7 +437,7 @@
     let workshop = null;
 
     function formatDate(dateStr) {
-      return new Date(dateStr + "T00:00:00").toLocaleDateString("en-IN", {
+      return formatWorkshopDate(dateStr, {
         weekday: "long",
         day: "numeric",
         month: "long",
@@ -414,7 +454,17 @@
 
       const { data, error } = await client
         .from("fizzbuzzart_workshops")
-        .select("*")
+        .select(`
+          *,
+          artist:fizzbuzzart_artists!artist_id (
+            id,
+            name,
+            specialty,
+            instagram_handle,
+            image_url,
+            bio
+          )
+        `)
         .eq("id", workshopId)
         .single();
 
@@ -426,19 +476,30 @@
 
       workshop = data;
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const isPast = new Date(data.workshop_date + "T00:00:00") < today;
+      const isPast = isWorkshopPast(data.workshop_date);
 
       if (isPast) {
         document.getElementById("registerBtn").textContent = "Registration Closed";
         document.getElementById("registerBtn").disabled = true;
       }
 
+      const artist = data.artist;
+      const artistBlock = artist ? `
+        <div class="artist-block">
+          ${artist.image_url ? `<img src="${artist.image_url}" alt="${artist.name}">` : ""}
+          <div class="artist-block-info">
+            <h3>${artist.name}</h3>
+            ${artist.specialty ? `<div class="specialty">${artist.specialty}</div>` : ""}
+            ${artist.instagram_handle ? `<a href="https://instagram.com/${artist.instagram_handle.replace(/^@/, "")}" target="_blank" rel="noopener">@${artist.instagram_handle.replace(/^@/, "")}</a>` : ""}
+          </div>
+        </div>
+      ` : "";
+
       document.getElementById("details").innerHTML = `
         <img src="${data.image_url || "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=720&h=400&fit=crop"}" alt="${data.title}">
         <h1>${data.title}</h1>
         <p class="description">${data.description || ""}</p>
+        ${artistBlock}
         <div class="info-grid">
           <div class="info-item">
             <div class="label">Date</div>
@@ -485,10 +546,9 @@
     async function register() {
       const name = document.getElementById("name").value.trim();
       const city = document.getElementById("city").value.trim();
-      const paymentMode = document.getElementById("payment_mode").value;
-      const amountPaid = document.getElementById("amount_paid").value;
+      const contactDetails = document.getElementById("contact_details").value.trim();
 
-      if (!name || !city || !paymentMode || !amountPaid) {
+      if (!name || !city || !contactDetails) {
         alert("Please fill in all fields.");
         return;
       }
@@ -498,11 +558,10 @@
       submitBtn.textContent = "Submitting…";
 
       const payload = {
-        workshop_id: workshopId,
+        workshop_id: Number(workshopId),
         name: name,
         city: city,
-        payment_mode: paymentMode,
-        amount_paid: parseFloat(amountPaid)
+        contact_details: contactDetails
       };
 
       const { data, error } = await client

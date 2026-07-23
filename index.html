@@ -283,6 +283,13 @@
       margin-top: 10px;
     }
 
+    .card .artist-meta {
+      font-size: 0.85rem;
+      color: var(--purple-deep);
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
     .card.past {
       opacity: 0.88;
       filter: saturate(0.85);
@@ -770,14 +777,11 @@
     }
 
     function isPast(dateStr) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const workshopDate = new Date(dateStr + "T00:00:00");
-      return workshopDate < today;
+      return isWorkshopPast(dateStr);
     }
 
     function formatDate(dateStr) {
-      return new Date(dateStr + "T00:00:00").toLocaleDateString("en-IN", {
+      return formatWorkshopDate(dateStr, {
         weekday: "short",
         day: "numeric",
         month: "short",
@@ -788,12 +792,17 @@
     function buildWorkshopCard(workshop, isPastWorkshop) {
       const card = document.createElement("div");
       card.className = "card" + (isPastWorkshop ? " past" : "");
+      const artist = workshop.artist;
+      const artistLine = artist
+        ? `<div class="artist-meta">🎨 ${artist.name}${artist.specialty ? " · " + artist.specialty : ""}</div>`
+        : "";
 
       card.innerHTML = `
         <img src="${workshop.image_url || "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&h=260&fit=crop"}" alt="${workshop.title}">
         <div class="content">
           ${isPastWorkshop ? '<span class="badge">Completed</span>' : ""}
           <div class="title">${workshop.title}</div>
+          ${artistLine}
           <div class="meta">📅 ${formatDate(workshop.workshop_date)}</div>
           <div class="meta">⏰ ${workshop.start_time} – ${workshop.end_time}</div>
           <div class="meta">📍 ${workshop.address}</div>
@@ -815,7 +824,16 @@
     async function loadWorkshops() {
       const { data, error } = await client
         .from("fizzbuzzart_workshops")
-        .select("*")
+        .select(`
+          *,
+          artist:fizzbuzzart_artists!artist_id (
+            id,
+            name,
+            specialty,
+            instagram_handle,
+            image_url
+          )
+        `)
         .order("workshop_date", { ascending: true });
 
       if (error) {

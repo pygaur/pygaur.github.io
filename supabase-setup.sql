@@ -15,7 +15,8 @@
 -- TABLE: fizzbuzzart_workshops
 -- -----------------------------------------------------------------------------
 -- Columns used by the website: id, title, description, workshop_date,
---   start_time, end_time, address, price, food_coupon_value, max_seats, image_url
+--   start_time, end_time, address, price, food_coupon_value, max_seats, image_url,
+--   artist_id (FK → fizzbuzzart_artists)
 -- Columns in DB but not yet shown on site: location, food_coupon, organizer_mobile
 -- -----------------------------------------------------------------------------
 
@@ -42,25 +43,27 @@ CREATE TABLE IF NOT EXISTS fizzbuzzart_workshops (
 -- TABLE: fizzbuzzart_workshop_registrations
 -- -----------------------------------------------------------------------------
 -- Form fields submitted by workshop.html:
---   name, city, payment_mode, amount_paid  (+ workshop_id from URL)
--- Legacy column: mobile (kept for old rows; form no longer sends it)
+--   name, city, contact_details  (+ workshop_id from URL)
+-- contact_details = Instagram/social handle and/or mobile (one field, required)
+-- Legacy columns: mobile, payment_mode, amount_paid (no longer used by the form)
 -- -----------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS fizzbuzzart_workshop_registrations (
-  id            bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  created_at    timestamptz DEFAULT now(),
-  name          text,
-  city          text,
-  mobile        text,
-  workshop_id   bigint REFERENCES fizzbuzzart_workshops(id),
-  payment_mode  text,
-  amount_paid   numeric
+  id               bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  created_at       timestamptz DEFAULT now(),
+  name             text,
+  city             text,
+  mobile           text,
+  workshop_id      bigint REFERENCES fizzbuzzart_workshops(id),
+  payment_mode     text,
+  amount_paid      numeric,
+  contact_details  text
 );
 
--- Add payment columns if table was created before the form update
 ALTER TABLE fizzbuzzart_workshop_registrations
   ADD COLUMN IF NOT EXISTS payment_mode text,
-  ADD COLUMN IF NOT EXISTS amount_paid numeric;
+  ADD COLUMN IF NOT EXISTS amount_paid numeric,
+  ADD COLUMN IF NOT EXISTS contact_details text;
 
 
 -- -----------------------------------------------------------------------------
@@ -87,6 +90,10 @@ ALTER TABLE fizzbuzzart_artists
   ADD COLUMN IF NOT EXISTS instagram_handle text,
   ADD COLUMN IF NOT EXISTS facebook_page_url text,
   ADD COLUMN IF NOT EXISTS mobile_no text;
+
+-- Link each workshop to an artist (set artist_id in Table Editor when creating workshops)
+ALTER TABLE fizzbuzzart_workshops
+  ADD COLUMN IF NOT EXISTS artist_id bigint REFERENCES fizzbuzzart_artists(id);
 
 
 -- =============================================================================
@@ -136,6 +143,24 @@ CREATE POLICY "Allow public read on artists"
   ON fizzbuzzart_artists FOR SELECT
   TO anon, authenticated
   USING (true);
+
+
+-- =============================================================================
+-- REQUIRED MIGRATIONS (run if live DB is behind the website)
+-- =============================================================================
+-- The website expects these columns to exist:
+--
+--   fizzbuzzart_workshops.artist_id          → artist join on cards & detail page
+--   fizzbuzzart_workshop_registrations.contact_details → registration form
+--
+-- Quick sync (safe to re-run):
+--
+-- ALTER TABLE fizzbuzzart_workshop_registrations
+--   ADD COLUMN IF NOT EXISTS contact_details text;
+--
+-- ALTER TABLE fizzbuzzart_workshops
+--   ADD COLUMN IF NOT EXISTS artist_id bigint REFERENCES fizzbuzzart_artists(id);
+-- =============================================================================
 
 
 -- =============================================================================

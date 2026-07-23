@@ -5,3 +5,20 @@ const SUPABASE_ANON_KEY =
 function getSupabaseClient() {
   return supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
+
+/** Parse workshop_date from Supabase (date or timestamptz string). */
+function parseWorkshopDate(dateStr) {
+  const d = new Date(dateStr);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function isWorkshopPast(dateStr) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return parseWorkshopDate(dateStr) < today;
+}
+
+function formatWorkshopDate(dateStr, options) {
+  return new Date(dateStr).toLocaleDateString("en-IN", options);
+}
