@@ -469,7 +469,7 @@ main {
 }
 
 .artist-link {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -479,12 +479,17 @@ main {
   font-weight: 600;
   transition: transform 0.2s, box-shadow 0.2s;
   text-decoration: none;
+  width: 100%;
 }
 
+.artist-link-icon,
 .artist-link svg {
-  width: 18px;
-  height: 18px;
+  width: 18px !important;
+  height: 18px !important;
+  max-width: 18px !important;
+  max-height: 18px !important;
   flex-shrink: 0;
+  display: block;
 }
 
 .artist-link:hover {

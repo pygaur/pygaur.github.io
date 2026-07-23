@@ -13,11 +13,11 @@
   <meta property="og:description" content="View workshop details and register online.">
   <meta name="twitter:card" content="summary_large_image">
   <title>Art Workshop — FizzBuzzCircle</title>
-  <link rel="stylesheet" href="site.css">
+  <link rel="stylesheet" href="site.css?v=2">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js?v=2"></script>
   <script src="seo.js?v=1"></script>
-  <script src="artists.js?v=1"></script>
+  <script src="artists.js?v=2"></script>
   <style>
     .workshop-page {
       padding: 40px 0 64px;
@@ -129,6 +129,40 @@
     .info-item .artist-jump:hover {
       color: var(--pink);
       text-decoration: underline;
+    }
+
+    /* Artist card on this page — guard against Instagram embed.js resizing SVGs */
+    #workshop-artist .artist-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      width: 100%;
+    }
+
+    #workshop-artist .artist-link-icon,
+    #workshop-artist .artist-link svg {
+      width: 18px !important;
+      height: 18px !important;
+      max-width: 18px !important;
+      max-height: 18px !important;
+      flex-shrink: 0;
+    }
+
+    #workshop-artist .artist-link.ig {
+      background: linear-gradient(135deg, #fdf497, #fd5949, #d6249f, #285AEB);
+      color: #fff;
+    }
+
+    #workshop-artist .artist-link.phone {
+      background: var(--teal-soft);
+      color: var(--teal-dark);
+      border: 1px solid rgba(46, 196, 182, 0.35);
     }
 
     .register-btn {
