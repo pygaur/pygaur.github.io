@@ -16,8 +16,10 @@
 -- -----------------------------------------------------------------------------
 -- Columns used by the website: id, title, description, workshop_date,
 --   start_time, end_time, address, price, food_coupon_value, max_seats, image_url,
---   artist_id (FK → fizzbuzzart_artists)
+--   artist_id (FK → fizzbuzzart_artists), instagram_post_url (optional embed on detail page)
 -- Columns in DB but not yet shown on site: location, food_coupon, organizer_mobile
+-- Detail page: if instagram_post_url is set, shows Instagram embed instead of image_url
+-- Listing cards: always use image_url (embed is too heavy for scroll cards)
 -- -----------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS fizzbuzzart_workshops (
@@ -35,8 +37,12 @@ CREATE TABLE IF NOT EXISTS fizzbuzzart_workshops (
   food_coupon_value   numeric,
   address             text,
   organizer_mobile    text,
-  image_url           text
+  image_url           text,
+  instagram_post_url  text
 );
+
+ALTER TABLE fizzbuzzart_workshops
+  ADD COLUMN IF NOT EXISTS instagram_post_url text;
 
 
 -- -----------------------------------------------------------------------------
@@ -44,8 +50,8 @@ CREATE TABLE IF NOT EXISTS fizzbuzzart_workshops (
 -- -----------------------------------------------------------------------------
 -- Form fields submitted by workshop.html:
 --   name, city, contact_details  (+ workshop_id from URL)
--- contact_details = Instagram/social handle and/or mobile (one field, required)
--- Legacy columns: mobile, payment_mode, amount_paid (no longer used by the form)
+-- contact_details = "How can we reach you?" — Instagram/social handle and/or phone
+-- Legacy/unused columns: mobile, payment_mode, amount_paid
 -- -----------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS fizzbuzzart_workshop_registrations (
@@ -152,11 +158,15 @@ CREATE POLICY "Allow public read on artists"
 --
 --   fizzbuzzart_workshops.artist_id          → artist join on cards & detail page
 --   fizzbuzzart_workshop_registrations.contact_details → registration form
+--   fizzbuzzart_workshops.instagram_post_url          → optional IG embed on detail page
 --
 -- Quick sync (safe to re-run):
 --
 -- ALTER TABLE fizzbuzzart_workshop_registrations
 --   ADD COLUMN IF NOT EXISTS contact_details text;
+--
+-- ALTER TABLE fizzbuzzart_workshops
+--   ADD COLUMN IF NOT EXISTS instagram_post_url text;
 --
 -- ALTER TABLE fizzbuzzart_workshops
 --   ADD COLUMN IF NOT EXISTS artist_id bigint REFERENCES fizzbuzzart_artists(id);
