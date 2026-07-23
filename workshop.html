@@ -9,15 +9,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
   <style>
-    :root {
-      --accent: #3ECF8E;
-      --accent-dark: #2ca873;
-      --ink: #1a1a2e;
-      --muted: #6b7280;
-      --bg: #faf8f5;
-      --border: #e8e4df;
-    }
-
     .workshop-page {
       padding: 40px 0 64px;
     }
@@ -34,7 +25,7 @@
     }
 
     .back-link:hover {
-      color: var(--accent-dark);
+      color: var(--purple-deep);
     }
 
     #details {
@@ -43,20 +34,23 @@
 
     #details img {
       width: 100%;
-      border-radius: 16px;
+      border-radius: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 8px 30px rgba(26, 26, 46, 0.1);
+      box-shadow: var(--shadow);
+      border: 3px solid rgba(155, 89, 182, 0.15);
     }
 
     #details h1 {
       margin: 0 0 12px;
-      font-size: 1.85rem;
+      font-size: 2rem;
       letter-spacing: -0.02em;
+      font-family: var(--font-display);
     }
 
     #details .description {
       color: var(--muted);
       margin-bottom: 20px;
+      font-size: 1.05rem;
     }
 
     .info-grid {
@@ -67,17 +61,26 @@
     }
 
     .info-item {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid rgba(155, 89, 182, 0.12);
+      border-radius: 14px;
       padding: 14px 16px;
+    }
+
+    .info-item:nth-child(odd) {
+      border-color: rgba(255, 107, 107, 0.15);
+    }
+
+    .info-item:nth-child(even) {
+      border-color: rgba(46, 196, 182, 0.15);
     }
 
     .info-item .label {
       font-size: 0.78rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: var(--muted);
+      color: var(--purple);
+      font-weight: 700;
       margin-bottom: 4px;
     }
 
@@ -86,26 +89,31 @@
     }
 
     .register-btn {
-      background: var(--accent);
+      background: var(--gradient-cta);
       color: #fff;
       border: none;
       padding: 16px;
       width: 100%;
       max-width: 720px;
-      border-radius: 12px;
+      border-radius: 999px;
       font-size: 1.05rem;
       font-weight: 700;
+      font-family: var(--font-body);
       cursor: pointer;
-      transition: background 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 6px 24px rgba(224, 86, 253, 0.35);
     }
 
     .register-btn:hover {
-      background: var(--accent-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 32px rgba(224, 86, 253, 0.45);
     }
 
     .register-btn:disabled {
       background: #ccc;
+      box-shadow: none;
       cursor: not-allowed;
+      transform: none;
     }
 
     /* Modal */
@@ -125,8 +133,10 @@
       max-width: 460px;
       margin: 5% auto;
       padding: 28px;
-      border-radius: 16px;
+      border-radius: 20px;
       position: relative;
+      border: 2px solid rgba(155, 89, 182, 0.2);
+      box-shadow: 0 20px 60px rgba(125, 60, 152, 0.2);
     }
 
     .close {
@@ -140,12 +150,13 @@
     }
 
     .close:hover {
-      color: var(--ink);
+      color: var(--purple-deep);
     }
 
     .modal h2 {
       margin: 0 0 20px;
-      font-size: 1.35rem;
+      font-size: 1.4rem;
+      font-family: var(--font-display);
     }
 
     label {
@@ -153,7 +164,7 @@
       font-size: 0.85rem;
       font-weight: 600;
       margin-bottom: 6px;
-      color: var(--ink);
+      color: var(--purple-deep);
     }
 
     input,
@@ -161,37 +172,43 @@
       width: 100%;
       padding: 12px 14px;
       margin-bottom: 16px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      border: 2px solid rgba(155, 89, 182, 0.15);
+      border-radius: 12px;
       font-size: 1rem;
-      font-family: inherit;
+      font-family: var(--font-body);
     }
 
     input:focus,
     select:focus {
-      outline: 2px solid var(--accent);
-      border-color: var(--accent);
+      outline: none;
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.15);
     }
 
     .submit-btn {
-      background: var(--accent);
+      background: var(--gradient-cta);
       color: #fff;
       border: none;
       padding: 14px;
       width: 100%;
-      border-radius: 10px;
+      border-radius: 999px;
       font-size: 1rem;
       font-weight: 700;
+      font-family: var(--font-body);
       cursor: pointer;
+      box-shadow: 0 4px 16px rgba(224, 86, 253, 0.3);
     }
 
     .submit-btn:hover {
-      background: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(224, 86, 253, 0.4);
     }
 
     .submit-btn:disabled {
       background: #ccc;
+      box-shadow: none;
       cursor: not-allowed;
+      transform: none;
     }
 
     #form-section.hidden {
@@ -200,16 +217,17 @@
 
     #success {
       display: none;
-      background: #eafff3;
+      background: var(--teal-soft);
       padding: 24px;
-      border-radius: 12px;
+      border-radius: 16px;
       text-align: center;
-      border: 1px solid #b8f0d4;
+      border: 2px solid rgba(46, 196, 182, 0.3);
     }
 
     #success h3 {
       margin: 0 0 8px;
       font-size: 1.3rem;
+      font-family: var(--font-display);
     }
 
     #success .welcome {
@@ -220,7 +238,11 @@
     .registration-id {
       font-size: 2rem;
       font-weight: 800;
-      color: var(--accent-dark);
+      font-family: var(--font-display);
+      background: var(--gradient-cta);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       letter-spacing: 0.05em;
       margin: 8px 0 16px;
     }
@@ -240,6 +262,7 @@
       <button class="menu-toggle" aria-label="Open menu" onclick="toggleMenu()">☰</button>
       <nav class="nav-links" id="navLinks">
         <a href="index.html#about">About</a>
+        <a href="index.html#cities">Cities</a>
         <a href="index.html#upcoming">Workshops</a>
         <a href="index.html#artists">Artists</a>
         <a href="index.html#contact">Contact</a>
@@ -316,9 +339,20 @@
           <h4>Explore</h4>
           <ul>
             <li><a href="index.html#about">About Us</a></li>
+            <li><a href="index.html#cities">Our Cities</a></li>
             <li><a href="index.html#upcoming">Upcoming Workshops</a></li>
             <li><a href="index.html#past">Past Workshops</a></li>
             <li><a href="index.html#artists">Our Artists</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Cities</h4>
+          <ul>
+            <li><a href="index.html#cities">Delhi NCR</a></li>
+            <li><a href="index.html#cities">Mussoorie</a></li>
+            <li><a href="index.html#cities">Lucknow</a></li>
+            <li><a href="index.html#cities">Kanpur</a></li>
+            <li><a href="index.html#cities">Indore</a></li>
           </ul>
         </div>
         <div class="footer-col">
@@ -334,6 +368,7 @@
           <h4>Get in Touch</h4>
           <ul>
             <li><a href="https://instagram.com/fizzbuzzcircle" target="_blank" rel="noopener">Instagram</a></li>
+            <li><a href="tel:+919717883557">+91 97178 83557</a></li>
             <li><a href="mailto:hello@fizzbuzzcircle.com">hello@fizzbuzzcircle.com</a></li>
             <li><a href="index.html#upcoming">Register for a Workshop</a></li>
           </ul>
